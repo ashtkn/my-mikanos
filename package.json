@@ -1,0 +1,24 @@
+{
+  "name": "my-mikanos",
+  "version": "1.0.0",
+  "description": "My implementation of Minkan OS",
+  "scripts": {
+    "prelint": "cd kernel && compiledb make",
+    "lint": "clang-tidy -checks='*' -warnings-as-errors='*,-hicpp-no-assembler'",
+    "format": "clang-format -i",
+    "prepare": "husky install"
+  },
+  "author": "Asahi Takenouchi",
+  "license": "Apache",
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.0"
+  },
+  "lint-staged": {
+    "kernel/**/*.{h,hpp,inc,c,cpp,cc}": [
+      "npm run lint",
+      "npm run format"
+    ],
+    "MikanLoaderPkg/**/*.{h,hpp,inc,c,cpp,cc}": ["npm run format"]
+  }
+}

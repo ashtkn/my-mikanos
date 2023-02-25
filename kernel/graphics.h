@@ -1,6 +1,6 @@
 #pragma once
 
-#include "boost/core/span.hpp"
+#include "boost/core/span.hpp"  // boost::span
 #include "frame_buffer_config.h"
 
 struct PixelColor {

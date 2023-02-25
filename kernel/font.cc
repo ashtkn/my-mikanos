@@ -3,8 +3,8 @@
 #include <array>
 #include <optional>
 
-#include "boost/core/bit.hpp"
-#include "boost/core/span.hpp"
+#include "boost/core/bit.hpp"   // boost::core::bit_cast
+#include "boost/core/span.hpp"  // boost::span
 
 // $ man objcopy
 // -B bfdarch

@@ -19,8 +19,7 @@ void Console::PutString(const char* s) {
       NewLine();
     } else if (cursor_column_ < kColumns - 1) {
       WriteAscii(writer_, 8 * cursor_column_, 16 * cursor_row_, *s, fg_color_);
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      buffer_[cursor_row_][cursor_column_] = *s;
+      buffer_.at(cursor_row_).at(cursor_column_) = *s;
       ++cursor_column_;
     }
     ++s;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -38,15 +37,12 @@ void Console::NewLine() {
       }
     }
     for (int row = 0; row < kRows - 1; ++row) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      auto dst = static_cast<void*>(buffer_[row]);
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      auto src = static_cast<const void*>(buffer_[row + 1]);
+      auto dst = static_cast<void*>(buffer_.at(row).data());
+      auto src = static_cast<const void*>(buffer_.at(row + 1).data());
       memcpy(dst, src, kColumns + 1);
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      WriteString(writer_, 0, 16 * row, static_cast<const char*>(buffer_[row]),
-                  fg_color_);
+      WriteString(writer_, 0, 16 * row,
+                  static_cast<const char*>(buffer_.at(row).data()), fg_color_);
     }
-    memset(static_cast<void*>(buffer_[kRows - 1]), 0, kColumns + 1);
+    memset(static_cast<void*>(buffer_[kRows - 1].data()), 0, kColumns + 1);
   }
 }

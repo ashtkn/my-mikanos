@@ -19,8 +19,7 @@ Error AddDevice(uint8_t bus, uint8_t device, uint8_t function,
   if (pci::num_device == pci::devices.size()) {
     return Error{Error::Code::kFull};
   }
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-  pci::devices[pci::num_device] =
+  pci::devices.at(pci::num_device) =
       pci::Device{bus, device, function, header_type};
   ++pci::num_device;
   return Error{Error::Code::kSuccess};

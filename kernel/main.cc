@@ -1,6 +1,8 @@
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <string_view>
 
 #include "console.h"
 #include "font.h"
@@ -17,7 +19,7 @@ const int kMouseCursorWidth = 15;
 const int kMouseCursorHeight = 24;
 
 // clang-format off
-const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
+const std::array<std::string_view, kMouseCursorHeight> mouse_cursor_shape {
   "@              ",
   "@@             ",
   "@.@            ",
@@ -118,12 +120,9 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
 
   for (int dy = 0; dy < kMouseCursorHeight; ++dy) {
     for (int dx = 0; dx < kMouseCursorWidth; ++dx) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      if (mouse_cursor_shape[dy][dx] == '@') {
+      if (mouse_cursor_shape.at(dy).at(dx) == '@') {
         pixel_writer->Write(200 + dx, 100 + dy, {0, 0, 0});
-      }
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      else if (mouse_cursor_shape[dy][dx] == '.') {
+      } else if (mouse_cursor_shape.at(dy).at(dx) == '.') {
         pixel_writer->Write(200 + dx, 100 + dy, {255, 255, 255});
       }
     }
@@ -138,8 +137,7 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   printk("ScanAllBus: %s\n", err.Name().data());
 
   for (int i = 0; i < pci::num_device; ++i) {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    const auto& dev = pci::devices[i];
+    const auto& dev = pci::devices.at(i);
     auto vendor_id = pci::ReadVendorId(dev.bus, dev.device, dev.function);
     auto class_code = pci::ReadClassCode(dev.bus, dev.device, dev.function);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)

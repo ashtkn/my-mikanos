@@ -22,6 +22,8 @@ extern const uint8_t _binary_hankaku_bin_start;
 extern const uint8_t _binary_hankaku_bin_end;
 extern const uint8_t _binary_hankaku_bin_size;
 
+namespace {
+
 auto GetFontListSpan() {
   auto bin_start =
       boost::core::bit_cast<const uint8_t*>(&_binary_hankaku_bin_start);
@@ -41,6 +43,8 @@ auto GetFont(char c) -> std::optional<std::array<uint8_t, 16>> {
   std::copy(font_span.begin(), font_span.end(), font.begin());
   return font;
 }
+
+}  // unnamed namespace
 
 void WriteAscii(const PixelWriter& writer, int x, int y, char c,
                 const PixelColor& color) {

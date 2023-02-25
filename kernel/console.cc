@@ -13,16 +13,16 @@ Console::Console(const PixelWriter& writer, const PixelColor& fg_color,
       cursor_row_{0},
       cursor_column_{0} {}
 
-void Console::PutString(const char* s) {
-  while (*s != '\0') {
-    if (*s == '\n') {
+void Console::PutString(std::string_view s) {
+  for (int i = 0; s[i] != '\0'; ++i) {
+    if (s[i] == '\n') {
       NewLine();
     } else if (cursor_column_ < kColumns - 1) {
-      WriteAscii(writer_, 8 * cursor_column_, 16 * cursor_row_, *s, fg_color_);
-      buffer_.at(cursor_row_).at(cursor_column_) = *s;
+      WriteAscii(writer_, 8 * cursor_column_, 16 * cursor_row_, s[i],
+                 fg_color_);
+      buffer_.at(cursor_row_).at(cursor_column_) = s[i];
       ++cursor_column_;
     }
-    ++s;  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   }
 }
 

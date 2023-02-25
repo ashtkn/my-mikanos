@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <string_view>
 
 #include "graphics.h"
 
@@ -11,7 +12,7 @@ class Console {
 
   Console(const PixelWriter& writer, const PixelColor& fg_color,
           const PixelColor& bg_color);
-  void PutString(const char* s);
+  void PutString(std::string_view s);
 
  private:
   void NewLine();

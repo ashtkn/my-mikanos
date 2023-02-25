@@ -33,7 +33,7 @@ auto GetFontListSpan() {
 }
 
 auto GetFont(char c) -> std::optional<std::array<uint8_t, 16>> {
-  auto index = 16 * static_cast<unsigned int>(c);
+  auto index = 16 * static_cast<uint32_t>(c);
   auto font_list_span = GetFontListSpan();
   if (index >= font_list_span.size()) {
     return std::nullopt;
@@ -52,8 +52,8 @@ void WriteAscii(const PixelWriter& writer, int x, int y, char c,
   if (!font) {
     return;
   }
-  for (unsigned int dy = 0; dy < 16; ++dy) {
-    for (unsigned int dx = 0; dx < 8; ++dx) {
+  for (uint32_t dy = 0; dy < 16; ++dy) {
+    for (uint32_t dx = 0; dx < 8; ++dx) {
       if ((static_cast<uint8_t>(font->at(dy) << dx) & 0x80u) != 0u) {
         writer.Write(x + dx, y + dy, color);
       }

@@ -5,11 +5,9 @@
 #include "console.h"
 #include "font.h"
 #include "graphics.h"
+#include "pci.h"
 
-// NOLINTNEXTLINE(fuchsia-overloaded-operator,misc-unused-parameters)
-void* operator new(size_t size, void* buf) { return buf; }
-
-// NOLINTNEXTLINE(fuchsia-overloaded-operator,misc-unused-parameters,misc-new-delete-overloads,cert-dcl54-cpp,hicpp-new-delete-operators)
+// NOLINTNEXTLINE(fuchsia-overloaded-operator,misc-unused-parameters,misc-new-delete-overloads,cert-dcl54-cpp,hicpp-new-delete-operators,readability-inconsistent-declaration-parameter-name)
 void operator delete(void* obj) noexcept {}
 
 const PixelColor kDesktopBgColor{45, 118, 237};
@@ -61,7 +59,7 @@ int printk(const char* format, ...) {
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg,cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
   va_start(ap, format);
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay,clang-analyzer-valist.Uninitialized)
   result = vsprintf(static_cast<char*>(s), format, ap);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
   va_end(ap);
@@ -126,6 +124,24 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
         pixel_writer->Write(200 + dx, 100 + dy, {255, 255, 255});
       }
     }
+  }
+
+  /**
+   * Show devices
+   */
+
+  auto err = pci::ScanAllBus();
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+  printk("ScanAllBus: %s\n", err.Name().data());
+
+  for (int i = 0; i < pci::num_device; ++i) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    const auto& dev = pci::devices[i];
+    auto vendor_id = pci::ReadVendorId(dev.bus, dev.device, dev.function);
+    auto class_code = pci::ReadClassCode(dev.bus, dev.device, dev.function);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+    printk("%d.%d.%d: vend %04x, class %08x, head %02x\n", dev.bus, dev.device,
+           dev.function, vendor_id, class_code, dev.header_type);
   }
 
   /**

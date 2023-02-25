@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 
 #include "font.h"
 #include "graphics.h"
@@ -42,6 +43,12 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   for (char c = '!'; c <= '~'; ++c, ++i) {
     WriteAscii(*pixel_writer, 8 * i, 50, c, {0, 0, 0});
   }
+  WriteString(*pixel_writer, 0, 66, "Hello, world", {0, 0, 255});
+
+  char buf[128];
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+  sprintf(static_cast<char*>(buf), "1 + 2 = %d", 1 + 2);
+  WriteString(*pixel_writer, 0, 82, static_cast<const char*>(buf), {0, 0, 0});
 
   while (true) {
     __asm__("hlt");  // NOLINT(hicpp-no-assembler)

@@ -41,3 +41,12 @@ void WriteAscii(const PixelWriter& writer, int x, int y, char c,
     }
   }
 }
+
+void WriteString(const PixelWriter& writer, int x, int y, const char* s,
+                 const PixelColor& color) {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  for (int i = 0; s[i] != '\0'; ++i) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    WriteAscii(writer, x + 8 * i, y, s[i], color);
+  }
+}

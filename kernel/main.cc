@@ -12,6 +12,41 @@ void* operator new(size_t size, void* buf) { return buf; }
 // NOLINTNEXTLINE(fuchsia-overloaded-operator,misc-unused-parameters,misc-new-delete-overloads,cert-dcl54-cpp,hicpp-new-delete-operators)
 void operator delete(void* obj) noexcept {}
 
+const PixelColor kDesktopBgColor{45, 118, 237};
+// const PixelColor kDesktopFgColor{255, 255, 255};
+
+const int kMouseCursorWidth = 15;
+const int kMouseCursorHeight = 24;
+
+// clang-format off
+const char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
+  "@              ",
+  "@@             ",
+  "@.@            ",
+  "@..@           ",
+  "@...@          ",
+  "@....@         ",
+  "@.....@        ",
+  "@......@       ",
+  "@.......@      ",
+  "@........@     ",
+  "@.........@    ",
+  "@..........@   ",
+  "@...........@  ",
+  "@............@ ",
+  "@......@@@@@@@@",
+  "@......@       ",
+  "@....@@.@      ",
+  "@...@ @.@      ",
+  "@..@   @.@     ",
+  "@.@    @.@     ",
+  "@@      @.@    ",
+  "@       @.@    ",
+  "         @.@   ",
+  "         @@@   ",
+};
+// clang-format on
+
 char pixel_writer_buf[sizeof(RGBResv8BitPerColorPixelWriter)];
 PixelWriter* pixel_writer;
 
@@ -49,11 +84,21 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
       break;
   }
 
-  for (int x = 0; x < frame_buffer_config.horizontal_resolution; ++x) {
-    for (int y = 0; y < frame_buffer_config.vertical_resolution; ++y) {
-      pixel_writer->Write(x, y, {255, 255, 255});
-    }
-  }
+  const int kFrameWidth = frame_buffer_config.horizontal_resolution;
+  const int kFrameHeight = frame_buffer_config.vertical_resolution;
+
+  /**
+   * Draw desktop
+   */
+
+  DrawFillRectangle(*pixel_writer, {0, 0}, {kFrameWidth, kFrameHeight - 50},
+                    kDesktopBgColor);
+  DrawFillRectangle(*pixel_writer, {0, kFrameHeight - 50}, {kFrameWidth, 50},
+                    {1, 8, 17});
+  DrawFillRectangle(*pixel_writer, {0, kFrameHeight - 50},
+                    {kFrameWidth / 5, 50}, {80, 80, 80});
+  DrawStrokeRectangle(*pixel_writer, {10, kFrameHeight - 40}, {30, 30},
+                      {160, 160, 160});
 
   /**
    * Show console
@@ -63,9 +108,24 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   console = new (reinterpret_cast<Console*>(console_buf))
       Console{*pixel_writer, {0, 0, 0}, {255, 255, 255}};
 
-  for (int i = 0; i < 27; ++i) {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    printk("printk; %d\n", i);
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+  printk("Welcome to MikanOS!\n");
+
+  /**
+   * Draw mouse cursor
+   */
+
+  for (int dy = 0; dy < kMouseCursorHeight; ++dy) {
+    for (int dx = 0; dx < kMouseCursorWidth; ++dx) {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+      if (mouse_cursor_shape[dy][dx] == '@') {
+        pixel_writer->Write(200 + dx, 100 + dy, {0, 0, 0});
+      }
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+      else if (mouse_cursor_shape[dy][dx] == '.') {
+        pixel_writer->Write(200 + dx, 100 + dy, {255, 255, 255});
+      }
+    }
   }
 
   /**

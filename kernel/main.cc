@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <string_view>
 
+#include "boost/core/span.hpp"  // boost::span
 #include "console.h"
 #include "font.h"
 #include "graphics.h"
@@ -47,10 +48,10 @@ constexpr std::array<std::string_view, kMouseCursorHeight> mouse_cursor_shape {
 };
 // clang-format on
 
-char pixel_writer_buf[sizeof(RGBResv8BitPerColorPixelWriter)];
+std::array<std::byte, sizeof(RGBResv8BitPerColorPixelWriter)> pixel_writer_buf;
 PixelWriter* pixel_writer;
 
-char console_buf[sizeof(Console)];
+std::array<std::byte, sizeof(Console)> console_buf;
 Console* console;
 
 // NOLINTNEXTLINE(cert-dcl50-cpp)
@@ -76,14 +77,14 @@ int printk(const char* format, ...) {
 extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   switch (frame_buffer_config.pixel_format) {
     case kPixelRGBResv8BitPerColor:
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      pixel_writer = new (reinterpret_cast<PixelWriter*>(pixel_writer_buf))
-          RGBResv8BitPerColorPixelWriter{frame_buffer_config};
+      pixel_writer =
+          new (static_cast<void*>(boost::span(pixel_writer_buf).data()))
+              RGBResv8BitPerColorPixelWriter{frame_buffer_config};
       break;
     case kPixelBGRResv8BitPerColor:
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      pixel_writer = new (reinterpret_cast<PixelWriter*>(pixel_writer_buf))
-          BGRResv8BitPerColorPixelWriter{frame_buffer_config};
+      pixel_writer =
+          new (static_cast<void*>(boost::span(pixel_writer_buf).data()))
+              BGRResv8BitPerColorPixelWriter{frame_buffer_config};
       break;
   }
 
@@ -107,8 +108,8 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
    * Show console
    */
 
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-owning-memory)
-  console = new (reinterpret_cast<Console*>(console_buf))
+  // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+  console = new (static_cast<void*>(boost::span(console_buf).data()))
       Console{*pixel_writer, {0, 0, 0}, {255, 255, 255}};
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)

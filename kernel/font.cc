@@ -1,6 +1,5 @@
 #include "font.h"
 
-#include <array>
 #include <optional>
 
 #include "boost/core/bit.hpp"   // boost::core::bit_cast
@@ -24,24 +23,18 @@ extern const uint8_t _binary_hankaku_bin_size;
 
 namespace {
 
-auto GetFontListSpan() {
-  auto bin_start =
+auto GetFont(char c) -> std::optional<boost::span<const uint8_t>> {
+  const auto bin_start =
       boost::core::bit_cast<const uint8_t*>(&_binary_hankaku_bin_start);
-  auto bin_end =
+  const auto bin_end =
       boost::core::bit_cast<const uint8_t*>(&_binary_hankaku_bin_end);
-  return boost::span(bin_start, bin_end);
-}
+  const auto font_list_span = boost::span(bin_start, bin_end);
 
-auto GetFont(char c) -> std::optional<std::array<uint8_t, 16>> {
-  auto index = 16 * static_cast<uint32_t>(c);
-  auto font_list_span = GetFontListSpan();
+  const auto index = 16 * static_cast<uint32_t>(c);
   if (index >= font_list_span.size()) {
     return std::nullopt;
   }
-  auto font_span = font_list_span.subspan(index, 16);
-  std::array<uint8_t, 16> font{};
-  std::copy(font_span.begin(), font_span.end(), font.begin());
-  return font;
+  return font_list_span.subspan(index, 16);
 }
 
 }  // unnamed namespace
@@ -54,7 +47,7 @@ void WriteAscii(const PixelWriter& writer, int x, int y, char c,
   }
   for (uint32_t dy = 0; dy < 16; ++dy) {
     for (uint32_t dx = 0; dx < 8; ++dx) {
-      if ((static_cast<uint8_t>(font->at(dy) << dx) & 0x80u) != 0u) {
+      if ((static_cast<uint8_t>(font.value()[dy] << dx) & 0x80u) != 0u) {
         writer.Write(x + dx, y + dy, color);
       }
     }

@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdio>
 
+#include "console.h"
 #include "font.h"
 #include "graphics.h"
 
@@ -33,22 +34,23 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
       pixel_writer->Write(x, y, {255, 255, 255});
     }
   }
-  for (int x = 0; x < 200; ++x) {
-    for (int y = 0; y < 100; ++y) {
-      pixel_writer->Write(100 + x, 100 + y, {0, 255, 0});
-    }
-  }
 
-  int i = 0;
-  for (char c = '!'; c <= '~'; ++c, ++i) {
-    WriteAscii(*pixel_writer, 8 * i, 50, c, {0, 0, 0});
-  }
-  WriteString(*pixel_writer, 0, 66, "Hello, world", {0, 0, 255});
+  /**
+   * Show console
+   */
+
+  Console console{*pixel_writer, {0, 0, 0}, {255, 255, 255}};
 
   char buf[128];
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-  sprintf(static_cast<char*>(buf), "1 + 2 = %d", 1 + 2);
-  WriteString(*pixel_writer, 0, 82, static_cast<const char*>(buf), {0, 0, 0});
+  for (int i = 0; i < 27; ++i) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+    sprintf(static_cast<char*>(buf), "line %d\n", i);
+    console.PutString(static_cast<const char*>(buf));
+  }
+
+  /**
+   * Halt
+   */
 
   while (true) {
     __asm__("hlt");  // NOLINT(hicpp-no-assembler)

@@ -1,5 +1,11 @@
 #include "font.h"
 
+#include <array>
+#include <optional>
+
+#include "boost/core/bit.hpp"
+#include "boost/core/span.hpp"
+
 // $ man objcopy
 // -B bfdarch
 // --binary-architecture=bfdarch
@@ -16,26 +22,35 @@ extern const uint8_t _binary_hankaku_bin_start;
 extern const uint8_t _binary_hankaku_bin_end;
 extern const uint8_t _binary_hankaku_bin_size;
 
-const uint8_t* GetFont(char c) {
+auto GetFontListSpan() {
+  auto bin_start =
+      boost::core::bit_cast<const uint8_t*>(&_binary_hankaku_bin_start);
+  auto bin_end =
+      boost::core::bit_cast<const uint8_t*>(&_binary_hankaku_bin_end);
+  return boost::span(bin_start, bin_end);
+}
+
+auto GetFont(char c) -> std::optional<std::array<uint8_t, 16>> {
   auto index = 16 * static_cast<unsigned int>(c);
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  if (index >= reinterpret_cast<uintptr_t>(&_binary_hankaku_bin_size)) {
-    return nullptr;
+  auto font_list_span = GetFontListSpan();
+  if (index >= font_list_span.size()) {
+    return std::nullopt;
   }
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  return &_binary_hankaku_bin_start + index;
+  auto font_span = font_list_span.subspan(index, 16);
+  std::array<uint8_t, 16> font{};
+  std::copy(font_span.begin(), font_span.end(), font.begin());
+  return font;
 }
 
 void WriteAscii(const PixelWriter& writer, int x, int y, char c,
                 const PixelColor& color) {
   auto font = GetFont(c);
-  if (font == nullptr) {
+  if (!font) {
     return;
   }
   for (unsigned int dy = 0; dy < 16; ++dy) {
     for (unsigned int dx = 0; dx < 8; ++dx) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      if ((static_cast<uint8_t>(font[dy] << dx) & 0x80u) != 0u) {
+      if ((static_cast<uint8_t>(font->at(dy) << dx) & 0x80u) != 0u) {
         writer.Write(x + dx, y + dy, color);
       }
     }

@@ -12,14 +12,14 @@
 // NOLINTNEXTLINE
 void operator delete(void* obj) noexcept {}
 
-const PixelColor kDesktopBgColor{45, 118, 237};
-// const PixelColor kDesktopFgColor{255, 255, 255};
+constexpr PixelColor kDesktopBgColor{45, 118, 237};
+// constexpr PixelColor kDesktopFgColor{255, 255, 255};
 
-const int kMouseCursorWidth = 15;
-const int kMouseCursorHeight = 24;
+constexpr int kMouseCursorWidth = 15;
+constexpr int kMouseCursorHeight = 24;
 
 // clang-format off
-const std::array<std::string_view, kMouseCursorHeight> mouse_cursor_shape {
+constexpr std::array<std::string_view, kMouseCursorHeight> mouse_cursor_shape {
   "@              ",
   "@@             ",
   "@.@            ",

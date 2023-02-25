@@ -7,7 +7,7 @@
 #include "graphics.h"
 #include "pci.h"
 
-// NOLINTNEXTLINE(fuchsia-overloaded-operator,misc-unused-parameters,misc-new-delete-overloads,cert-dcl54-cpp,hicpp-new-delete-operators,readability-inconsistent-declaration-parameter-name)
+// NOLINTNEXTLINE
 void operator delete(void* obj) noexcept {}
 
 const PixelColor kDesktopBgColor{45, 118, 237};
@@ -57,12 +57,15 @@ int printk(const char* format, ...) {
   int result;
   char s[1024];
 
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg,cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
-  va_start(ap, format);
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay,clang-analyzer-valist.Uninitialized)
-  result = vsprintf(static_cast<char*>(s), format, ap);
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
-  va_end(ap);
+  // Following issues here
+  // - cppcoreguidelines-pro-type-vararg
+  // - cppcoreguidelines-pro-bounds-array-to-pointer-decay
+  // - hicpp-vararg
+  // - hicpp-no-array-decay
+  // - clang-analyzer-valist.Uninitialized
+  va_start(ap, format);                                  // NOLINT
+  result = vsprintf(static_cast<char*>(s), format, ap);  // NOLINT
+  va_end(ap);                                            // NOLINT
 
   console->PutString(static_cast<const char*>(s));
   return result;

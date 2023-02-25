@@ -1,5 +1,6 @@
 #pragma once
 
+#include "boost/core/span.hpp"
 #include "frame_buffer_config.h"
 
 struct PixelColor {
@@ -20,10 +21,10 @@ class PixelWriter {
   virtual void Write(int x, int y, const PixelColor& c) const = 0;
 
  protected:
-  uint8_t* PixelAt(int x, int y) const {
+  boost::span<uint8_t, 4> PixelAt(int x, int y) const {
     const int pixel_position = config_.pixels_per_scan_line * y + x;
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    return &config_.frame_buffer[4 * pixel_position];
+    return boost::span<uint8_t, 4>(&config_.frame_buffer[4 * pixel_position],
+                                   4);
   }
 
  private:

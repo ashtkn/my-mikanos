@@ -4,7 +4,7 @@
 #include "frame_buffer_config.h"
 
 struct PixelColor {
-  uint8_t r, g, b;
+  std::byte r, g, b;
 };
 
 class PixelWriter {
@@ -21,10 +21,10 @@ class PixelWriter {
   virtual void Write(int x, int y, const PixelColor& c) const = 0;
 
  protected:
-  boost::span<uint8_t, 4> PixelAt(int x, int y) const {
+  boost::span<std::byte, 4> PixelAt(int x, int y) const {
     const int pixel_position = config_.pixels_per_scan_line * y + x;
-    return boost::span<uint8_t, 4>(&config_.frame_buffer[4 * pixel_position],
-                                   4);
+    return boost::as_writable_bytes(
+        boost::span<uint8_t, 4>(&config_.frame_buffer[4 * pixel_position], 4));
   }
 
  private:

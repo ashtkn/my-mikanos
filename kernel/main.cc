@@ -13,8 +13,10 @@
 // NOLINTNEXTLINE
 void operator delete(void* obj) noexcept {}
 
-constexpr PixelColor kDesktopBgColor{45, 118, 237};
-// constexpr PixelColor kDesktopFgColor{255, 255, 255};
+constexpr PixelColor kDesktopBgColor{std::byte{45}, std::byte{118},
+                                     std::byte{237}};
+// constexpr PixelColor kDesktopFgColor{ std::byte{255}, std::byte{255},
+// std::byte{255} };
 
 constexpr int kMouseCursorWidth = 15;
 constexpr int kMouseCursorHeight = 24;
@@ -98,11 +100,12 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   DrawFillRectangle(*pixel_writer, {0, 0}, {kFrameWidth, kFrameHeight - 50},
                     kDesktopBgColor);
   DrawFillRectangle(*pixel_writer, {0, kFrameHeight - 50}, {kFrameWidth, 50},
-                    {1, 8, 17});
+                    {std::byte{1}, std::byte{8}, std::byte{17}});
   DrawFillRectangle(*pixel_writer, {0, kFrameHeight - 50},
-                    {kFrameWidth / 5, 50}, {80, 80, 80});
+                    {kFrameWidth / 5, 50},
+                    {std::byte{80}, std::byte{80}, std::byte{80}});
   DrawStrokeRectangle(*pixel_writer, {10, kFrameHeight - 40}, {30, 30},
-                      {160, 160, 160});
+                      {std::byte{160}, std::byte{160}, std::byte{160}});
 
   /**
    * Show console
@@ -110,7 +113,9 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
 
   // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
   console = new (static_cast<void*>(boost::span(console_buf).data()))
-      Console{*pixel_writer, {0, 0, 0}, {255, 255, 255}};
+      Console{*pixel_writer,
+              {std::byte{0}, std::byte{0}, std::byte{0}},
+              {std::byte{255}, std::byte{255}, std::byte{255}}};
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
   printk("Welcome to MikanOS!\n");
@@ -122,9 +127,11 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   for (int dy = 0; dy < kMouseCursorHeight; ++dy) {
     for (int dx = 0; dx < kMouseCursorWidth; ++dx) {
       if (mouse_cursor_shape.at(dy).at(dx) == '@') {
-        pixel_writer->Write(200 + dx, 100 + dy, {0, 0, 0});
+        pixel_writer->Write(200 + dx, 100 + dy,
+                            {std::byte{0}, std::byte{0}, std::byte{0}});
       } else if (mouse_cursor_shape.at(dy).at(dx) == '.') {
-        pixel_writer->Write(200 + dx, 100 + dy, {255, 255, 255});
+        pixel_writer->Write(200 + dx, 100 + dy,
+                            {std::byte{255}, std::byte{255}, std::byte{255}});
       }
     }
   }

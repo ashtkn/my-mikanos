@@ -4,7 +4,7 @@
 #include "frame_buffer_config.h"
 
 struct PixelColor {
-  std::byte r, g, b;
+  uint8_t r, g, b;
 };
 
 class PixelWriter {

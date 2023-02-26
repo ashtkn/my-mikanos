@@ -37,9 +37,7 @@ void Console::NewLine() {
       }
     }
     for (int row = 0; row < kRows - 1; ++row) {
-      auto dst = static_cast<void*>(buffer_.at(row).data());
-      auto src = static_cast<const void*>(buffer_.at(row + 1).data());
-      memcpy(dst, src, kColumns + 1);
+      memcpy(buffer_.at(row).data(), buffer_.at(row + 1).data(), kColumns + 1);
       WriteString(writer_, 0, 16 * row,
                   static_cast<const char*>(buffer_.at(row).data()), fg_color_);
     }

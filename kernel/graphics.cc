@@ -3,17 +3,17 @@
 void RGBResv8BitPerColorPixelWriter::Write(int x, int y,
                                            const PixelColor& c) const {
   auto p = PixelAt(x, y);
-  p[0] = c.r;
-  p[1] = c.g;
-  p[2] = c.b;
+  p[0] = std::byte{c.r};
+  p[1] = std::byte{c.g};
+  p[2] = std::byte{c.b};
 }
 
 void BGRResv8BitPerColorPixelWriter::Write(int x, int y,
                                            const PixelColor& c) const {
   auto p = PixelAt(x, y);
-  p[0] = c.b;
-  p[1] = c.g;
-  p[2] = c.r;
+  p[0] = std::byte{c.b};
+  p[1] = std::byte{c.g};
+  p[2] = std::byte{c.r};
 }
 
 void DrawStrokeRectangle(const PixelWriter& writer,
